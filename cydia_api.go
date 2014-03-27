@@ -35,6 +35,7 @@ import(
 	"encoding/base64"
 	"strings"
 	"net/url"
+	"errors"
 )
 
 /* === Struct to hold API response info === */
@@ -93,7 +94,7 @@ func check_response_signature(response url.Values, key string) bool{
 }
 
 
-func CheckCydiaPurchase(udid string, package_id string, dev string, apikey string) CydiaPurchaseInfo{
+func CheckCydiaPurchase(udid string, package_id string, dev string, apikey string) (*CydiaPurchaseInfo, error){
 
 	/* Build the query string */
 	query := buildQuery(udid, package_id, dev, apikey);
@@ -112,7 +113,7 @@ func CheckCydiaPurchase(udid string, package_id string, dev string, apikey strin
 	resp, err := client.Do(req);
 
 	if(err != nil){
-		panic(err);
+		return nil, err;
 	}
 
 	/* Get body text */
@@ -120,29 +121,21 @@ func CheckCydiaPurchase(udid string, package_id string, dev string, apikey strin
 	fmt.Println(string(body));
 
 	if(err != nil){
-		panic(err);
+		return nil, err;
 	}
 
 	/* Parse reponse values */
 	values, err := url.ParseQuery(string(body));
 
 	if(err != nil){
-		panic(err);
+		return nil, err;
 	}
 
-	if(check_response_signature(values, apikey)){
-		fmt.Println("Response signature valid!");
-	}else{
-		fmt.Println("Response signature invalid!");
+	if(!check_response_signature(values, apikey)){
+		return nil, errors.New("Invalid response signature.");
 	}
 
 	responseInfo := CydiaPurchaseInfo{values};
 
-	if(responseInfo.PurchaseComplete()){
-		fmt.Println("Purchase complete!");
-	}else{
-		fmt.Println("Purchase incomplete.");
-	}
-
-	return responseInfo;
+	return &responseInfo, nil;
 }

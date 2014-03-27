@@ -16,7 +16,7 @@ First, import the package.
 
 The only public function in the API is CheckCydiaPurchase, as follows:
 
-    func CheckCydiaPurchase(udid string, package_id string, dev string, apikey string) CydiaPurchaseInfo;
+    func CheckCydiaPurchase(udid string, package_id string, dev string, apikey string) (*CydiaPurchaseInfo, error);
 
 ### Arguments
 
@@ -38,11 +38,17 @@ The only public function in the API is CheckCydiaPurchase, as follows:
 
 ###Return Value
 
-`CheckCydiaPurchase` returns a `CydiaPurchaseInfo` struct containing data from the Cydia API response.
+`CheckCydiaPurchase` returns a `CydiaPurchaseInfo` struct containing data from the Cydia API response, or nil + an error if an error occurred.
 
 ####Example
 
-    info := cydia.CheckCydiaPurchase("udid_here", "us.kanyon.beacon", "eswick", "api_key_here");
+    info, err := cydia.CheckCydiaPurchase("udid_here", "us.kanyon.beacon", "eswick", "api_key_here");
+
+    if(err != nil){
+    	fmt.Println("Error checking Cydia API.");
+    	return;
+    }
+
     if(info.PurchaseComplete()){
         fmt.Println("Purchase complete!");
     }else{

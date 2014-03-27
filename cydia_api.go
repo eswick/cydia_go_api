@@ -118,7 +118,6 @@ func CheckCydiaPurchase(udid string, package_id string, dev string, apikey strin
 
 	/* Get body text */
 	body, err := ioutil.ReadAll(resp.Body);
-	fmt.Println(string(body));
 
 	if(err != nil){
 		return nil, err;
